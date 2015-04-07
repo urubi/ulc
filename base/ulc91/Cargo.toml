@@ -1,0 +1,9 @@
+[package]
+
+name = "ulc91"
+version = "0.0.1"
+authors = ["urubi <urubi@yandex.com>"]
+
+[dependencies.ulc22]
+name = "ulc22"
+path = "../ulc22"

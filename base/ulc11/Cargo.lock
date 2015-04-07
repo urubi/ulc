@@ -1,0 +1,23 @@
+[root]
+name = "ulc11"
+version = "0.0.1"
+dependencies = [
+ "ulc21 0.0.1",
+ "ulc91 0.0.1",
+]
+
+[[package]]
+name = "ulc21"
+version = "0.0.1"
+
+[[package]]
+name = "ulc22"
+version = "0.0.1"
+
+[[package]]
+name = "ulc91"
+version = "0.0.1"
+dependencies = [
+ "ulc22 0.0.1",
+]
+

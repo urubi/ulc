@@ -1,0 +1,15 @@
+[package]
+
+name = "ulc11"
+version = "0.0.1"
+authors = ["urubi <urubi@yandex.com>"]
+
+[dependencies.ulc91]
+path = "../ulc91"
+
+[dependencies.ulc21]
+path = "../ulc21"
+
+[lib]
+name = "ulc11"
+crate_type = [ "rlib", "dylib" ]

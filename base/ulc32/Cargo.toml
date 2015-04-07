@@ -1,0 +1,16 @@
+[package]
+name = "ulc32"
+version = "0.0.1"
+authors = ["urubi <urubi@yandex.com>"]
+
+[dependencies.ulc31]
+name = "ulc31"
+path = "../ulc31"
+
+[dependencies.ulc22]
+name = "ulc22"
+path = "../ulc22"
+
+[dependencies.ulc91]
+name = "ulc91"
+path = "../ulc91"

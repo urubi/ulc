@@ -1,0 +1,123 @@
+pub mod file;
+pub mod stat;
+pub mod ln;
+pub mod flags {
+    // asm-generic/fcntl.h
+    pub const O_ACCMODE:usize                = 0o0000003;
+    pub const O_RDONLY:usize                 = 0o0000000;
+    pub const O_WRONLY:usize                 = 0o0000001;
+    pub const O_RDWR:usize                   = 0o0000002;
+    pub const O_CREAT:usize                  = 0o0000100;
+    pub const O_EXCL:usize                   = 0o0000200;
+    pub const O_NOCTTY:usize                 = 0o0000400;
+    pub const O_TRUNC:usize                  = 0o0001000;
+    pub const O_APPEND:usize                 = 0o0002000;
+    pub const O_NONBLOCK:usize               = 0o0004000;
+    pub const O_DSYNC:usize                  = 0o0010000;
+    pub const FASYNC:usize                   = 0o0020000;
+    pub const O_DIRECT:usize                 = 0o0040000;
+    pub const O_LARGEFILE:usize              = 0o0100000;
+    pub const O_DIRECTORY:usize              = 0o0200000;
+    pub const O_NOFOLLOW:usize               = 0o0400000;
+    pub const O_NOATIME:usize                = 0o1000000;
+    pub const O_CLOEXEC:usize                = 0o2000000;
+    pub const __O_SYNC:usize                 = 0o4000000;
+    pub const O_SYNC:usize                   = (__O_SYNC|O_DSYNC);
+    pub const O_PATH:usize                   = 0o10000000;
+    pub const __O_TMPFILE:usize              = 0o20000000;
+    pub const O_TMPFILE:usize                = (__O_TMPFILE | O_DIRECTORY);
+    pub const O_TMPFILE_MASK:usize           = (__O_TMPFILE | O_DIRECTORY | O_CREAT);
+    pub const O_NDELAY:usize                 = O_NONBLOCK;
+    pub const F_DUPFD:usize                  = 0;
+    pub const F_GETFD:usize                  = 1;
+    pub const F_SETFD:usize                  = 2;
+    pub const F_GETFL:usize                  = 3;
+    pub const F_SETFL:usize                  = 4;
+    pub const F_GETLK:usize                  = 5;
+    pub const F_SETLK:usize                  = 6;
+    pub const F_SETLKW:usize                 = 7;
+    pub const F_SETOWN:usize                 = 8;
+    pub const F_GETOWN:usize                 = 9;
+    pub const F_SETSIG:usize                 = 10;
+    pub const F_GETSIG:usize                 = 11;
+    pub const F_GETLK64:usize                = 12;
+    pub const F_SETLK64:usize                = 13;
+    pub const F_SETLKW64:usize               = 14;
+    pub const F_SETOWN_EX:usize              = 15;
+    pub const F_GETOWN_EX:usize              = 16;
+    pub const F_GETOWNER_UIDS:usize          = 17;
+    pub const F_OFD_GETLK:usize              = 36;
+    pub const F_OFD_SETLK:usize              = 37;
+    pub const F_OFD_SETLKW:usize             = 38;
+    pub const F_OWNER_TID:usize              = 0;
+    pub const F_OWNER_PID:usize              = 1;
+    pub const F_OWNER_PGRP:usize             = 2;
+    pub const FD_CLOEXEC:usize               = 1;
+    pub const F_RDLCK:usize                  = 0;
+    pub const F_WRLCK:usize                  = 1;
+    pub const F_UNLCK:usize                  = 2;
+    pub const F_EXLCK:usize                  = 4;
+    pub const F_SHLCK:usize                  = 8;
+    pub const LOCK_SH:usize                  = 1;
+    pub const LOCK_EX:usize                  = 2;
+    pub const LOCK_NB:usize                  = 4;
+    pub const LOCK_UN:usize                  = 8;
+    pub const LOCK_MAND:usize                = 32;
+    pub const LOCK_READ:usize                = 64;
+    pub const LOCK_WRITE:usize               = 128;
+    pub const LOCK_RW:usize                  = 192;
+    pub const F_LINUX_SPECIFIC_BASE:usize    = 1024;
+
+
+    // include/uapi/linux/stat.h
+    pub const S_IFMT:usize         = 0o0170000;
+    pub const S_IFSOCK:usize       = 0o140000;
+    pub const S_IFLNK:usize        = 0o120000;
+    pub const S_IFREG:usize        = 0o100000;
+    pub const S_IFBLK:usize        = 0o060000;
+    pub const S_IFDIR:usize        = 0o040000;
+    pub const S_IFCHR:usize        = 0o020000;
+    pub const S_IFIFO:usize        = 0o010000;
+    pub const S_ISUID:usize        = 0o004000;
+    pub const S_ISGID:usize        = 0o002000;
+    pub const S_ISVTX:usize        = 0o001000;
+    // -- snip --
+    pub const S_IRWXU:usize        = 0o0700;
+    pub const S_IRUSR:usize        = 0o0400;
+    pub const S_IWUSR:usize        = 0o0200;
+    pub const S_IXUSR:usize        = 0o0100;
+    pub const S_IRWXG:usize        = 0o0070;
+    pub const S_IRGRP:usize        = 0o0040;
+    pub const S_IWGRP:usize        = 0o0020;
+    pub const S_IXGRP:usize        = 0o0010;
+    pub const S_IRWXO:usize        = 0o0007;
+    pub const S_IROTH:usize        = 0o0004;
+    pub const S_IWOTH:usize        = 0o0002;
+    pub const S_IXOTH:usize        = 0o0001;
+    
+    // linux/fcntl.h (partial: some of it was marked internal)
+    pub const F_SEAL_SEAL:usize            = 0x0001;
+    pub const F_SEAL_SHRINK:usize          = 0x0002;
+    pub const F_SEAL_GROW:usize            = 0x0004;
+    pub const F_SEAL_WRITE:usize           = 0x0008;
+    pub const DN_ACCESS:usize              = 0x00000001;
+    pub const DN_MODIFY:usize              = 0x00000002;
+    pub const DN_CREATE:usize              = 0x00000004;
+    pub const DN_DELETE:usize              = 0x00000008;
+    pub const DN_RENAME:usize              = 0x00000010;
+    pub const DN_ATTRIB:usize              = 0x00000020;
+    pub const DN_MULTISHOT:usize           = 0x80000000;
+    pub const AT_FDCWD:isize               = -100;
+    pub const AT_SYMLINK_NOFOLLOW:usize    = 0x100;
+    pub const AT_REMOVEDIR:usize           = 0x200;
+    pub const AT_SYMLINK_FOLLOW:usize      = 0x400;
+    pub const AT_NO_AUTOMOUNT:usize        = 0x800;
+    pub const AT_EMPTY_PATH:usize          = 0x1000;
+
+    pub const SEEK_SET:usize   = 0;
+    pub const SEEK_CUR:usize   = 1;
+    pub const SEEK_END:usize   = 2;
+    pub const SEEK_DATA:usize  = 3;
+    pub const SEEK_HOLE:usize  = 4;
+    
+}
