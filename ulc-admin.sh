@@ -117,4 +117,10 @@ mute() {
 
 }
 
+[[ "$1" == "publish" ]] && {
+    $0 clean || die "couldn't clean module targets"
+    git commit -a || die "couldn't commit changes"
+    torify git push -u origin master || die "couldn't update remote"
+}
+
 ok
