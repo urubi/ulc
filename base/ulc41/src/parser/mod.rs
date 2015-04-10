@@ -1,6 +1,10 @@
 use std::rc::Rc;
 use ::tree;
 
+// Not
+// matcher -> Result<Node, ParserError>
+
+
 pub mod text;
 
 pub trait Parser<T> { // replace parse with Matcher
@@ -171,7 +175,7 @@ impl<'b, T> Parser<T> for Repeats<'b, T> {
             
         }
         
-        if reps < self.minimum || branch.len() == 0 {return None}
+        if reps < self.minimum {return None}
         else {Some(branch)}
     }
 }

@@ -93,17 +93,21 @@ mod test {
         let alpha_spec = [CharSpec::IRange('a' , 'z'), CharSpec::IRange('A' , 'Z')];
         let alpha_atom = CharParser::new("alpha", &alpha_spec);
         let alpha_rep  = Repeats::new("alpha*", &alpha_atom, 0, None);
+        let alpha_plus  = Repeats::new("alpha+", &alpha_atom, 1, None);
 
         let num_spec = [CharSpec::IRange('0' , '9')];
         let num_atom = CharParser::new("num", &num_spec);
         let num_rep  = Repeats::new("num*", &num_atom, 0, None);        
+        let num_plus  = Repeats::new("num+", &num_atom, 1, None);
         
         let sym_spec = [CharSpec::Singleton('!')];
         let sym_atom = CharParser::new("sym", &sym_spec);
         let sym_rep  = Repeats::new("sym*", &sym_atom, 0, None);
+        let sym_plus  = Repeats::new("sym+", &sym_atom, 1, None);
         
-        let alphanum_block = Or::new("alphanum", &[&alpha_rep, &num_rep]);
-        let alphanum_block_rep = Repeats::new("alphanum*", &alphanum_block, 0, None);
+        //let alphanum_atom = Or::new("alphanum", &[&alpha_atom, &num_atom]);
+        //let alphanum_rep = Repeats::new("alphanum*", &alphanum_atom, 0, None);
+        //let alphanum_plus = Repeats::new("alphanum+", &alphanum_atom, 1, None);
         
         // unicode literal-ish: Will not live past the place it is used
         macro_rules! ul {
@@ -111,7 +115,6 @@ mod test {
                 <Vec<char> as AsRef<[char]>>::as_ref(&$e.chars().collect::<Vec<char>>());
             )
         }
-        let literal_match = Match::new("some match", ul!("Cheesee"));
         
         
         // --------------------------------------------------------------------
@@ -119,14 +122,21 @@ mod test {
         
         let source: Vec<char> = "Cheesee1111sss!!!".chars().collect();
 
-        assert!(literal_match.parse(&source).unwrap().slice() == ul!("Cheesee"));
-        assert!(literal_match.parse(&source[2..]) == None);
+        {
+            let matcher = Match::new("some match", ul!("Cheesee"));
+            
+            assert!(matcher.parse(&source).unwrap().slice() == ul!("Cheesee"));
+            assert!(matcher.parse(&source[2..]) == None);
+        }
         
-        let m = alphanum_block_rep.parse(&source).unwrap();
-        
-        assert!(m.slice() == ul!("Cheesee1111sss"));
-        assert!(m.get_node("alpha*").unwrap().slice() == ul!("Cheesee"));
-        assert!(m.get_node("num*").unwrap().slice() == ul!("1111"));
+        {
+            let alphanumblock = Or::new("alphanumblock", &[&alpha_plus, &num_plus]);
+            let matcher = Repeats::new("alphanumblock*", &alphanumblock, 0, None);
+            let m = matcher.parse(&source).unwrap();
+            assert!(m.slice() == ul!("Cheesee1111sss"));
+            assert!(m.get_node("alpha+").unwrap().slice() == ul!("Cheesee"));
+            assert!(m.get_node("num+").unwrap().slice() == ul!("1111"));
+        }
         
         
         let seq = And::new("alpha* num* alpha* sym*", &[&alpha_rep, &num_rep, &alpha_rep, &sym_rep]);
@@ -135,22 +145,27 @@ mod test {
         let seq = And::new("alpha* num*", &[&alpha_rep, &num_rep]);
         assert!(seq.parse(&source).unwrap().slice() == ul!("Cheesee1111"));
         
-        let seq = And::new("alpha* sym*", &[&alpha_rep, &sym_rep]);
+        // This is not a string search library, it starts matching a patern at
+        // the bignening of the string, and not search through it
+        let seq = And::new("alpha* sym+", &[&alpha_rep, &sym_plus]);
         assert!(seq.parse(&source) == None);
+        
         
         let maybe_alpha = Perhaps::new("[alpha*]", &alpha_rep);
         let seq_imp = And::new("[alpha*] num* alpha*", &[&maybe_alpha, &num_rep, &alpha_rep]);
         assert!(seq_imp.parse(&source).unwrap().slice() == ul!("Cheesee1111sss"));
         assert!(seq_imp.parse(&source[7..]).unwrap().slice() == ul!("1111sss"));
-        assert!(seq_imp.parse(&source[..10]) == None);
+        assert!(seq_imp.parse(&source[..10]).unwrap().slice() == ul!("Cheesee111"));
         
     }
     
 }
-
+/*
 
 #[cfg(test)]
 mod simple_grammar {
-    
+    fn parse<'a>(&'a [char]) -> tree::Node<'a, char> {
+        
+    }
 
-}
+}*/
