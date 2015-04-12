@@ -4,6 +4,7 @@ pub trait NodeExt<'a, T> {
     fn len(&self) -> usize;
     fn tag(&self) -> &str;
     fn slice(&self) -> &'a [T];
+    fn collect(&self, tags: &[&str]) -> Vec<(Rc<String>, &'a [T])>;
 }
 
 //Rc<String>
@@ -17,6 +18,17 @@ impl<'a, T: 'a> NodeExt<'a, T> for Leaf<'a, T>{
     fn tag(&self) -> &str { &self.tag }
     fn slice(&self) -> &'a [T] {
         &self.slice
+    }
+    fn collect(&self, tags: &[&str]) -> Vec<(Rc<String>, &'a [T])> {
+        let mut out = vec![];
+        // there is a bug in the docs, can't find equivilant to `if x in [x]`
+        // TODO fix this
+        for i in tags.iter() {
+            if *i == *self.tag {
+                out.push((self.tag.clone(), self.slice()));
+            }
+        }
+        out
     }
 }
 impl<'a, T: 'a> Leaf<'a, T>{
@@ -44,10 +56,26 @@ impl<'a, T: 'a> NodeExt<'a, T> for Branch<'a, T> {
         }
         length
     }
+    fn collect(&self, tags: &[&str]) -> Vec<(Rc<String>, &'a [T])> {
+        let mut out = vec![];
+        
+        // if branch itself is wanted TODO same as for leaf
+        for i in tags.iter() {
+            if *i == *self.tag {
+                out.push((self.tag.clone(), self.slice()));
+            }
+        }
+        
+        for n in self.nodes.iter() {
+            out.push_all(&n.collect(tags));
+        }
+        out
+    }
     fn tag(&self) -> &str { &self.tag }
     fn slice(&self) -> &'a [T] {
         &self.root[..self.len()]
     }
+    
     
 }
 impl<'a, T: 'a> Branch<'a, T> {
@@ -88,6 +116,12 @@ impl<'a, T: 'a> NodeExt<'a, T> for Node<'a, T> {
             &Node::Branch(ref b) => b.slice(),
             &Node::Leaf(ref l) => l.slice()
         }    
+    }
+    fn collect(&self, tags: &[&str]) -> Vec<(Rc<String>, &'a [T])> {
+        match self {
+            &Node::Branch(ref b) => b.collect(tags),
+            &Node::Leaf(ref l) => l.collect(tags)
+        }
     }
 }
 impl<'a, T: 'a> Node<'a, T> {
@@ -185,4 +219,6 @@ fn test_tree() {
     assert!(tree.get_node("one to five").unwrap().slice() == b"01234");
     assert!(tree.get_node("two-part").unwrap().slice() == b"0123456789");
     assert!(tree.get_node("tree").unwrap().slice() == array);
+    
+    //panic!("{:?}", tree.collect(&["one to five", "two-part"]));
 }

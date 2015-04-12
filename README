@@ -1,28 +1,60 @@
+Urubi's Library Collection (ULC), Copyrights (C) 2015
+All rights reserved.
+
+
+See LICENSE for legal information.
+
+API is never stable, and is subject to change without prior notice. Backward
+compatablility between version is not garanteed. 
+
+This library collection is a work in progress. Many parts are experemental or 
+simply broken.
+
+
+
+Overview
+========
+
 ulc1:  Operating System
 ulc2:  Rust/FFI
 ulc3:  Field Specific
 ulc9:  Misc. helper libraries
 
 
-==OS Libraries==
+
+OS
+==
+
 ulc11:  Embeding data in executable binaries
 ulc12:  Arch-Independent Linux System Call API
 ulc13:  ACID Filesystem Access API
 
-==Rust/C/FFI==
+
+Rust/C/FFI
+==========
+
 ulc21:  Rust/C Type Converters (Arrays, Opaque types, etc)
 ulc22:  Rust Convenince and Debuging Macros and functions
 ulc23:  Environment Convenience Module
 
-==Net libraries==
+
+Network
+=======
+
 ulc31:  Network Utilities Module
 ulc32:  Socks4 Client 
 ulc33:  Tor Interface for Hidden Services 
 
-==Field-Specific Libraries==
-ulc41:  Pattern Processing
 
-==Misc==
-ulc91:  Binary formats (LE integers, blob segmentation, etc)
-ulc92:  Text operations and utilities (escaping, regex-ish, etc)
+Field-Specific Libraries
+========================
+
+ulc41:  Pattern Parsing and Processing
+
+
+Misc
+====
+
+ulc91:  Binary utilities (LE integers, blob segmentation, etc)
+ulc92:  Text utilities (escaping, text parsing, etc)
 

@@ -1,19 +1,23 @@
+#![feature(convert)]
+
 extern crate ulc41;
 
+#[macro_use]
+extern crate ulc22;
 
+pub mod character;
+pub mod abnf;
+
+
+
+/*
 pub mod rfc_2822 {
     use ulc41::tree::Node;
     
     pub fn parse() -> Option<Node> {
         use ulc41::parser::text::CharSpec;
         use ulc41::parser::text::CharParser;
-        use ulc41::parser::{And, Or, Repeats, Match};
-        
-        macro_rules! rule_match {
-            ($l: ident, $e: expr) => (
-                let $l = Match::new(stringify!($l), $e)
-            );
-        }
+        use ulc41::parser::{And, Or, Repeat, Match};
         
         
         let htab    = Match::new("htab", "\u9");
@@ -24,61 +28,51 @@ pub mod rfc_2822 {
         
         let sp      = Match::new("sp", "\u32");
 
-        let wsp     = Or::new("wsp", &[&sp, &htab]);
+        let wsp     = Or::new("wsp", vec![sp.clone(), htab.clone()]);
         
-        let alpha   = CharParser::new("alpha", &[
+        let alpha   = CharParser::new("alpha", vec![
                                 CharSpec::IRange('\u41', '\u5a'), 
                                 CharSpec::IRange('\u61', '\u7a')]);
                                 
-        let digit   = CharParser::new("digit", &[
+        let digit   = CharParser::new("digit", vec![
                                 CharSpec::IRange('\u30', '\u39')]);
         
         
         //////// Primitive Tokens ////////
         
-        let no_ws_ctl   = CharParser::new("no_ws_ctl", &[
+        let no_ws_ctl   = CharParser::new("no_ws_ctl", vec![
                                 CharSpec::IRange('\u1', '\u8'),
                                 CharSpec::IRange('\u11', '\u12'),
                                 CharSpec::IRange('\u14', '\u31'),
                                 CharSpec::Singleton('\u127')]);
                                 
-        let text        = CharParser::new("text", &[
+        let text        = CharParser::new("text", vec![
                                 CharSpec::IRange('\u1', '\u9'),
                                 CharSpec::IRange('\u11', '\u12'),
                                 CharSpec::IRange('\u14', '\u127')]);
                                 
         //////// Quoted Characters ////////
-        
-        let __backslash = Match::new("", "\\");
-        let quoted_pair = And::new("quoted_pair", &[&__backslash, &text]);
+        // quoted-pair = "\" text
+        let quoted_pair = {
+            let backslash = Match::new("", "\\");
+            
+            And::new("quoted_pair", vec![backslash, text.clone()])
+        };
         
         //////// Folding White Space and Comments ////////
-        
-        let fws__ = 
-        let fws__at_least_1_wsp = Repeats::new("", &wsp, 1, None)
-        let fws = And::new("fws", &[    &fws__optional_any_wsp_crlf,
-                                        &fws__at_least_1_wsp]);
-        
-    }
-    
-    
-    // folding white space, comments
-    pub fn fws(s: &[u8]) -> usize {
-        let f = |s: &[u8]| {
-            let l = s.len();
-            if l >= 3 && cr(s[0]) && lf(s[1]) && wsp(s[2]) {3}
-            else if l > 0 && wsp(s[0]) {
-                let mut c: usize = 0;
-                for i in s {
-                    if wsp(*i) {c += 1;}
-                    else {break;}
-                }
-                c
-            }
-            else {0}
+        // fws = [*WSP CRLF] 1*WSP
+        let fws = {
+            let wsp_plus            = Repeats::new("wsp+", wsp.clone(), 1, None);
+            let wsp_star            = Repeats::new("wsp*", wsp.clone(), 0, None);
+            let wsp_star_and_crlf   = And::new("wsp* crlf", vec![wsp_star, crlf.clone()]);
+            let optional            = Perhaps::new("[wsp* crlf]", wsp_star_and_crlf);
+            
+            And::new("fws", vec![optional, wsp_plus])
         };
-        ::pattern::follow(s, f, 0, None)
+        
+        
     }
+    
     #[test]
     pub fn test_fws() {
         assert!(fws(b" ") == 1);
@@ -139,9 +133,9 @@ pub mod rfc_2822 {
             b"^"[0], b"_"[0], b"`"[0], b"{"[0],
             b"|"[0], b"}"[0], b"~"[0])
     }
-    /*    
+    
     pub fn atom(s: &[u8]) -> usize {
-    }*/
+    }
     
     
     
@@ -154,7 +148,7 @@ pub mod rfc_2822 {
 
 
 
-/*
+
 
 
 macro_rules! IN_RANGES {

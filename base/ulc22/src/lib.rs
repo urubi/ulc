@@ -6,3 +6,4 @@ pub mod debug;
 pub mod verbose;
 pub mod core;
 pub mod io;
+pub mod unicode;
